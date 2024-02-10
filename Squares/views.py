@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from .forms import ParticipantForm, PurchaseForm
 from django.db.models import Sum, F
 from .models import Participant, Square, GameScore, WinningQuarter
-from django.http import HttpResponse
 
 
 
