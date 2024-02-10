@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .forms import ParticipantForm, PurchaseForm
 from django.db.models import Sum, F
 from .models import Participant, Square, GameScore, WinningQuarter
+from .global_vars import cap_enabled
 
 
 
@@ -27,8 +28,7 @@ def home(request):
     participant_id = request.COOKIES.get('participant_id')
     context = {}
     total_squares = 100
-    cap_enabled = True
-    num_participants = 10
+    num_participants = 11
 
     purchased_squares_total = Participant.objects.aggregate(total_purchased=Sum('squares_purchased'))['total_purchased'] or 0
     pending_squares_total = Participant.objects.aggregate(total_pending=Sum('squares_pending'))['total_pending'] or 0
@@ -38,8 +38,10 @@ def home(request):
     if participant:
         context['participant_name'] = participant.name
 
+        squares_acquired = participant.squares_purchased + participant.squares_pending
+
         if cap_enabled:
-            initial_cap = total_squares // num_participants
+            initial_cap = (total_squares // num_participants) - squares_acquired
         else:
             initial_cap = remaining_squares
 
@@ -78,9 +80,6 @@ def home(request):
 
     else:
         context['participant_name'] = None
-
-    print("Participant ID from cookie:", participant_id)
-    print("Participant exists:", participant is not None)
     
     return render(request, 'Squares/home.html', context)
 
