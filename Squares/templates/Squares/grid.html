@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+
+{% block title %}SuperBowl Squares{% endblock %}
+
+{% block extra_head %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    .grid-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .team-names-and-grid {
+        display: flex;
+        flex-wrap: wrap; /* Allow the team names and grid to wrap on small screens */
+        align-items: center; /* Ensures vertical alignment of the team name and grid */
+        justify-content: center;
+    }
+    .team-name-horizontal, .team-name-vertical {
+        font-weight: bold;
+        font-size: 24px; /* Adjust based on your layout needs */
+        text-align: center;
+        margin: 20px 0;
+    }
+    .team-name-vertical {
+        writing-mode: vertical-lr; /* Rotates the text for vertical reading */
+        transform: rotate(180deg); /* Flips the text so it reads from bottom to top */
+        margin-right: 10px; /* Space between the team name and the grid */
+    }
+    table {
+        border-collapse: collapse;
+        width: auto; /* Ensure the table width is based on content */
+        max-width: 100%; /* Ensure the table does not exceed the screen width */
+        table-layout: fixed; 
+    }
+    td, th {
+        border: 1px solid black;
+        width: 60px; /* Adjust based on your layout needs */
+        height: 60px; /* Adjust based on your layout needs */
+        text-align: center;
+        vertical-align: middle;
+        word-wrap: break-word;
+        overflow: hidden;
+    }
+    .number-labels {
+        font-weight: bold;
+    }
+    .owner-name-bold {
+        font-weight: bold;
+        font-size: 20px; /* Adjust the font size as needed */
+        word-wrap: break-word;
+        overflow: hidden; 
+    }
+    .square-not-owned {
+        word-wrap: break-word;
+        overflow: hidden; 
+        max-width: 100%;
+        display: block;
+    }
+    .highlight.blue { background-color: rgba(0, 0, 255, 0.3); } /* Blue highlight for current winning square */
+    .highlight.green { background-color: rgba(0, 255, 0, 0.5); } /* Green highlight for finalized quarter winners */
+    @media (max-width: 600px) {
+    .team-names-and-grid {
+        display: flex;
+        flex-direction: row; /* Ensures items are laid out in a row */
+        justify-content: center; /* Center items for better alignment */
+        align-items: flex-start; /* Align items at the start to prevent stretching */
+    }
+    .team-name-vertical {
+        writing-mode: vertical-lr;
+        transform: rotate(180deg); /* Keeps the vertical text orientation */
+        margin: 0; /* Adjust margin to ensure space between the name and the grid */
+        font-size: 20px; /* Adjust for readability */
+        text-align: center;
+        align-self: center;
+    }
+    .team-name-horizontal {
+        text-align: center; /* Ensure horizontal team name is centered above the grid */
+        margin-bottom: 5px; /* Add some space between the team name and the grid */
+        font-size: 20px; /* Adjust for readability */
+    }
+    .grid-container {
+        width: 100%; /* Adjust width to make space for the vertical team name */
+        overflow-x: auto;
+    }
+    table {
+        /* Adjust table layout to ensure it does not exceed screen width */
+        width: auto; /* Subtract the space taken by the vertical team name and any margins */
+        overflow-x: auto;
+        margin: 0; /* Center the table within its container */
+    }
+    .number-labels {
+        font-size: 15px; /* Smaller font size for small screens */
+    }
+    td, th {
+        width: 42px; /* Smaller cell size for small screens */
+        height: 70px;
+        word-wrap: break-word;
+        overflow: hidden;
+    }
+    .owner-name-bold {
+        font-weight: bold;
+        font-size: 16px; /* Adjust the font size as needed */
+        word-wrap: break-word;
+        overflow: hidden; 
+    }
+    .square-not-owned {
+        word-wrap: break-word;
+        overflow: hidden; 
+        max-width: 100%;
+        display: block;
+    }
+    }
+    @media (min-width: 601px) and (max-width: 992px) {
+    .team-names-and-grid {
+        flex-direction: row; /* Keep the team name and grid in a row */
+    }
+    .team-name-vertical {
+        /* Adjust the margin or positioning as needed */
+        margin: 0; /* Example adjustment */
+        align-self: center; /* Ensure vertical alignment */
+    }
+}
+    @media (orientation: landscape) {
+    .team-names-and-grid {
+        flex-direction: row; /* This ensures the layout remains horizontal */
+    }
+    .team-name-vertical {
+        margin: 0; /* Adjust based on your layout */
+        align-self: center; /* Ensures alignment */
+    }
+    table {
+        width: auto; /* Adjust based on your specific layout needs */
+        max-width: 100%; /* Ensure it doesn't overflow the screen */
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="grid-container" data-finalized-quarter="{{ finalized_quarter }}">
+    <div class="team-name-horizontal">Kansas City Chiefs: <span id="kc-score">{{ kc_score }}</span></div>
+    <div class="team-names-and-grid">
+        <div class="team-name-vertical">San Francisco 49ers: <span id="sf-score">{{ sf_score }}</span></div>
+        <table>
+            <tr>
+                <th class="number-labels"></th> <!-- Empty corner cell for alignment -->
+                {% for i in "0123456789" %}
+                <th class="number-labels">{{ i }}</th>
+                {% endfor %}
+            </tr>
+            {% for i, row in grid %}
+            <tr>
+                <th class="number-labels">{{ i }}</th> <!-- Row labels -->
+                {% for square in row %}
+                <!-- Include data-is-finalized-winner attribute based on square's winning status -->
+                <td class="square {{ square.row }}-{{ square.column }}"
+                    data-row="{{ square.row }}"
+                    data-column="{{ square.column }}"
+                    data-is-finalized-winner="{{ square.is_finalized_winner|yesno:'true,false' }}">
+                    {% if square.owner %}
+                        <span class="{% if square.owner.id|stringformat:'s' == current_participant_id %}owner-name-bold{% else %}square-not-owned{% endif %}">
+                            {{ square.owner.name|default:'Empty' }}
+                        </span>
+                    {% else %}
+                        <span class="square-not-owned">Empty</span>
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const kcScoreElement = document.getElementById('kc-score');
+        const sfScoreElement = document.getElementById('sf-score');
+        
+        // Function to safely parse scores, returning null for non-numeric or empty values
+        function parseScore(scoreElement) {
+            if (scoreElement && scoreElement.innerText.trim() !== "") {
+                const parsed = parseInt(scoreElement.innerText.trim());
+                if (!isNaN(parsed)) {
+                    return parsed; // Return parsed number if it's a valid number
+                }
+            }
+            return null; // Return null for empty or non-numeric values
+        }
+    
+        const kcScore = parseScore(kcScoreElement);
+        const sfScore = parseScore(sfScoreElement);
+    
+        function updateScoreDisplay() {
+            // Directly use the parsed scores for display, as parseScore already handles null cases
+            kcScoreElement.innerText = kcScore !== null ? kcScore : '';
+            sfScoreElement.innerText = sfScore !== null ? sfScore : '';
+        }
+    
+        function highlightSquares() {
+            document.querySelectorAll('.square').forEach(square => {
+                // Clear all highlights to start fresh
+                square.classList.remove('highlight', 'blue', 'green');
+                const row = parseInt(square.getAttribute('data-row'));
+                const column = parseInt(square.getAttribute('data-column'));
+                const isFinalizedWinner = square.getAttribute('data-is-finalized-winner') === 'true';
+            
+                // Only highlight if both scores are not null and match the square's position
+                if (kcScore !== null && sfScore !== null) {
+                    const kcLastDigit = kcScore % 10;
+                    const sfLastDigit = sfScore % 10;
+                    if (row === sfLastDigit && column === kcLastDigit) {
+                        square.classList.add('highlight', 'blue');
+                    }
+                }
+            
+                // Apply green highlight for finalized winners
+                if (isFinalizedWinner) {
+                    square.classList.add('highlight', 'green');
+                }
+            });
+        }
+    
+        // Initial call to update the score display and highlight squares
+        updateScoreDisplay();
+        highlightSquares();
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Check if the screen width is 600px or less
+        if (window.innerWidth <= 600) {
+            var allNames = document.querySelectorAll('.owner-name-bold, .square-not-owned');
+
+            allNames.forEach(function(name) {
+                if (name.textContent.length > 5) {
+                    // If the name length is greater than 5 characters
+                    if (name.classList.contains('owner-name-bold')) {
+                        // If the square is owned, set font size to 12px
+                        name.style.fontSize = '12px';
+                    } else if (name.classList.contains('square-not-owned')) {
+                        // If the square is not owned, set font size to 10px
+                        name.style.fontSize = '10px';
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+{% endblock %}

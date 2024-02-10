@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - SuperBowl Squares{% endblock %}
+
+{% block content %}
+{% block meta %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock %}
+<header style="text-align: center; margin-top: 25px;">
+    <h1>Let's Fucking Go Farmers!</h1>
+    <h2>A1's Super SuperBowl Squares</h2>
+    {% if participant_name %}
+    <p>What's good, {{ participant_name }}! You can select up to {{ initial_cap }} squares. <strong>{{ remaining_squares }} spots are remaining.</strong></p>
+        <form method="post" style="margin: 20px auto; width: fit-content;">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit">Submit</button>
+        </form>
+        <a href="{{ venmo_link }}" target="_blank">A1's Venmo</a>
+    {% else %}
+        <p>You're not <a href="{% url 'register' %}">registered</a> idiot.</p>
+    {% endif %}
+</header>
+<main style="text-align: center;">
+    <p>HOW 'BOUT THEM COWBOYS?!<br>Anyone up for a <a href="{% url 'dickroll' %}">Mock?</a></p>
+    <!-- You can add more content here as needed -->
+    {% if winners_by_quarter %}
+    <div>
+        {% for quarter, participant_ids in winners_by_quarter.items %}
+            <h2>{{ quarter }} Winner:</h2>
+            {% for participant_id in participant_ids %}
+                <p>{{ participant_id }}</p>
+            {% endfor %}
+        {% empty %}
+            <p>Winners displayed later.</p>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>Winners displayed later.</p>
+    {% endif %}
+</main>
+{% endblock %}
+
+

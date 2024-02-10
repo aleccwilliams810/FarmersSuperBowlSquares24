@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.75"> <!-- Ensure mobile responsiveness -->
+    <title>{% block title %}Farmers SuperBowl Squares 2024{% endblock %}</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            font-size: 25px; /* Adjust base font size as needed */
+        }
+        h1 {
+            font-size: 30px;
+        }
+        h2 {
+            font-size: 23px;
+        }
+        p, .square-not-owned {
+            font-size: 14px;
+        }  
+        main {
+            flex: 1;
+        }
+        footer {
+            text-align: center;
+            margin-top: auto;
+            padding: 20px 0;
+            background-color: #f8f9fa; /* Light gray background */
+            border-top: 1px solid #e7e7e7; /* Light gray border */
+        }
+        input[type=text], select, textarea, button {
+            font-size: 18px; /* Larger text for form elements */
+            padding: 10px; /* Larger touch targets */
+        }
+        @media (max-width: 600px) {
+            body {
+                font-size: 10px; /* Adjust for small screens */
+            }
+            .grid-container, .team-name-horizontal, .team-name-vertical, .number-labels {
+                font-size: 14px; /* Adjust as needed for specific elements */
+            }
+            input[type=text], select, textarea, button {
+                font-size: 20px; /* Even larger on small screens */
+            }
+            p, a, .square-not-owned {
+                font-size: 14px; /* Increase sizes for better readability on mobile */
+            }
+        }
+        @media (min-width: 601px) {
+            h1 {
+                font-size: 32px; /* Increase for desktop */
+            }
+            p, a {
+                font-size: 20px; /* Increase paragraph and link sizes for desktop */
+            }
+            .square-not-owned {
+                font-size: 16px; /* Adjust for desktop */
+            }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <nav style="text-align: center;">
+            <a href="{% url 'home' %}">Home</a> |
+            <a href="{% url 'grid' %}">Grid</a>
+        </nav>
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        &copy; 2024 SuperBowl Squares
+    </footer>
+</body>
+</html>
+
