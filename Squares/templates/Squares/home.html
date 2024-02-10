@@ -17,28 +17,28 @@
             <button type="submit">Submit</button>
         </form>
         <a href="{{ venmo_link }}" target="_blank">A1's Venmo</a>
+        <main style="text-align: center;">
+            <p>HOW 'BOUT THEM COWBOYS?!<br>Anyone up for a <a href="{% url 'dickroll' %}">Mock?</a></p>
+            <!-- You can add more content here as needed -->
+            {% if winners_by_quarter %}
+            <div>
+                {% for quarter, participant_ids in winners_by_quarter.items %}
+                    <h2>{{ quarter }} Winner:</h2>
+                    {% for participant_id in participant_ids %}
+                        <p>{{ participant_id }}</p>
+                    {% endfor %}
+                {% empty %}
+                    <p>Winners displayed later.</p>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>Winners displayed later.</p>
+            {% endif %}
+        </main>
     {% else %}
         <p>You're not <a href="{% url 'register' %}">registered</a> idiot.</p>
     {% endif %}
 </header>
-<main style="text-align: center;">
-    <p>HOW 'BOUT THEM COWBOYS?!<br>Anyone up for a <a href="{% url 'dickroll' %}">Mock?</a></p>
-    <!-- You can add more content here as needed -->
-    {% if winners_by_quarter %}
-    <div>
-        {% for quarter, participant_ids in winners_by_quarter.items %}
-            <h2>{{ quarter }} Winner:</h2>
-            {% for participant_id in participant_ids %}
-                <p>{{ participant_id }}</p>
-            {% endfor %}
-        {% empty %}
-            <p>Winners displayed later.</p>
-        {% endfor %}
-    </div>
-    {% else %}
-    <p>Winners displayed later.</p>
-    {% endif %}
-</main>
 {% endblock %}
 
 
