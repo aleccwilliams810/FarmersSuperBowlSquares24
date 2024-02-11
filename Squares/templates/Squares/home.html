@@ -11,9 +11,9 @@
     <h2>A1's Super SuperBowl Squares</h2>
     {% if participant_name %}
     <p>What's good, {{ participant_name }}! You can select up to <span id="initial_cap">{{ initial_cap }}</span> squares. <strong><span id="remaining_squares">{{ remaining_squares }} spots are remaining.</span></strong></p>
-        <form method="post" style="margin: 20px auto; width: fit-content;">
+        <form id="purchase-form" method="post" style="margin: 20px auto; width: fit-content;">
             {% csrf_token %}
-            {{ form }}
+            <input type="number" name="num_squares" id="id_num_squares" min="1" max="{{ initial_cap }}" required>
             <button type="submit">Submit</button>
         </form>
         <a href="{{ venmo_link }}" target="_blank">A1's Venmo</a>
@@ -59,7 +59,7 @@ function getCookie(name) {
 const csrftoken = getCookie('csrftoken');
 
 $(document).ready(function() {
-    $('form').submit(function(event) {
+    $('#purchase-form').submit(function(event) {
         event.preventDefault(); // Prevent the form from submitting the traditional way
         console.log("Attempting AJAX submission");
         var formData = $(this).serialize(); // Serialize the form data for submission
@@ -77,6 +77,9 @@ $(document).ready(function() {
                 // Update page elements with the response data
                 $('#initial_cap').text(response.initial_cap); // Assumes you have an element with id="initial_cap"
                 $('#remaining_squares').text(response.remaining_squares + ' spots are remaining'); // Assumes you have an element with id="remaining_squares"
+                // Get the value of the selected squares field and display it
+                var numSquaresSelected = $('#id_num_squares').val();
+                $('#selected_squares_msg').text("You have selected " + numSquaresSelected + " squares.");
             },
             error: function(xhr, status, error) {
                 // Optional: Handle error
@@ -89,5 +92,3 @@ $(document).ready(function() {
 </script>
 
 {% endblock %}
-
-
