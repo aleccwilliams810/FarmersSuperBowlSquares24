@@ -61,6 +61,7 @@ const csrftoken = getCookie('csrftoken');
 $(document).ready(function() {
     $('form').submit(function(event) {
         event.preventDefault(); // Prevent the form from submitting the traditional way
+        console.log("Attempting AJAX submission");
         var formData = $(this).serialize(); // Serialize the form data for submission
         $.ajax({
             type: 'POST',

@@ -59,6 +59,7 @@ def home(request):
                     remaining_squares -= num_squares
                 
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    print("AJAX request received")
                     return JsonResponse({
                         'initial_cap': initial_cap,
                         'remaining_squares': remaining_squares
