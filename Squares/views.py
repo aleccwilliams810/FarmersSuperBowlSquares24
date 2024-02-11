@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from .forms import ParticipantForm, PurchaseForm
 from django.db.models import Sum, F
 from .models import Participant, Square, GameScore, WinningQuarter
-from .global_vars import cap_enabled
+from django.core.cache import cache
+from django.http import JsonResponse
 
 
 
@@ -25,6 +26,7 @@ def register_participant(request):
 
 
 def home(request):
+    cap_enabled = cache.get('cap_enabled', True)
     participant_id = request.COOKIES.get('participant_id')
     context = {}
     total_squares = 100
@@ -55,6 +57,15 @@ def home(request):
                     participant.purchase_complete = False
                     participant.save()
                     remaining_squares -= num_squares
+                
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'initial_cap': initial_cap,
+                        'remaining_squares': remaining_squares
+                    })
+                else:
+                    form = PurchaseForm(initial={'num_squares': initial_cap})
+
         else:
             form = PurchaseForm(initial={'num_squares': initial_cap})
 

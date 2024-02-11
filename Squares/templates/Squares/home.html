@@ -10,7 +10,7 @@
     <h1>Let's Fucking Go Farmers!</h1>
     <h2>A1's Super SuperBowl Squares</h2>
     {% if participant_name %}
-    <p>What's good, {{ participant_name }}! You can select up to {{ initial_cap }} squares. <strong>{{ remaining_squares }} spots are remaining.</strong></p>
+    <p>What's good, {{ participant_name }}! You can select up to <span id="initial_cap">{{ initial_cap }}</span> squares. <strong><span id="remaining_squares">{{ remaining_squares }} spots are remaining.</span></strong></p>
         <form method="post" style="margin: 20px auto; width: fit-content;">
             {% csrf_token %}
             {{ form }}
@@ -39,6 +39,54 @@
         <p>You're not <a href="{% url 'register' %}">registered</a> idiot.</p>
     {% endif %}
 </header>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+$(document).ready(function() {
+    $('form').submit(function(event) {
+        event.preventDefault(); // Prevent the form from submitting the traditional way
+        var formData = $(this).serialize(); // Serialize the form data for submission
+        $.ajax({
+            type: 'POST',
+            url: '', // Submit to the same URL as the form's action
+            data: formData,
+            dataType: 'json', // Expect JSON in response
+            beforeSend: function(xhr, settings) {
+                if (!this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            },
+            success: function(response) {
+                // Update page elements with the response data
+                $('#initial_cap').text(response.initial_cap); // Assumes you have an element with id="initial_cap"
+                $('#remaining_squares').text(response.remaining_squares + ' spots are remaining'); // Assumes you have an element with id="remaining_squares"
+            },
+            error: function(xhr, status, error) {
+                // Optional: Handle error
+                console.log("Error: " + error);
+                console.log(xhr.responseText);
+            }
+        });
+    });
+});
+</script>
+
 {% endblock %}
 
 

@@ -1,4 +1,5 @@
 from django.contrib import admin, messages
+from django.db.models import Count, F
 from django.urls import path
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
@@ -6,7 +7,7 @@ from django.contrib.auth.models import Group, User
 from .models import Participant, Square, GameScore, WinningQuarter
 from .forms import ScoreUpdateForm, RevertSquaresForm
 import random
-from .global_vars import cap_enabled
+from django.core.cache import cache
 
 admin.site.unregister(User)
 admin.site.unregister(Group)
@@ -20,6 +21,7 @@ class WinningQuarterInline(admin.TabularInline):
 @admin.register(Participant)
 class ParticipantAdmin(admin.ModelAdmin):
     list_display = ['name', 'squares_pending', 'squares_purchased', 'purchase_complete']
+    actions = ['approve_purchases', 'randomly_assign_squares', 'revert_squares']
 
     @admin.action(description='Approve Selected Purchase(s)')
     def approve_purchases(self, request, queryset):
@@ -74,8 +76,8 @@ class ParticipantAdmin(admin.ModelAdmin):
                     squares = squares[:index] + squares[index + 1:]
                     probabilities = probabilities[:index] + probabilities[index + 1:]
         
-        cap_enabled = False
-        
+        cache.set('cap_enabled', False)
+
         messages.success(request, 'Squares assigned!')
 
     @admin.action(description='Revert Selected Squares')
